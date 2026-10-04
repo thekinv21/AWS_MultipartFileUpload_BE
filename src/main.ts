@@ -9,7 +9,7 @@ import { swaggerConfig } from '@/infrastructure/config';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  const isProduction = process.env.NODE_ENV === 'production';
+  const isProduction: boolean = process.env.NODE_ENV === 'production';
 
   app.setGlobalPrefix('/api');
 
