@@ -3,7 +3,13 @@
   "compilerOptions": {
     "rootDir": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "@/domain/*": ["./src/infrastructure/*"],
+      "@/app/*": ["./src/app/*"],
+      "@/infrastructure/*": ["./src/infrastructure/*"],
+      "@/presentation/*": ["./src/presentation/*"],
+      "@/use-case/*": ["./src/use-case/*"],
+      "@/shared/*": ["./src/shared/*"]
     }
   },
   "include": ["src"],
