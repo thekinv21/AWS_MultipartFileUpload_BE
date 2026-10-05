@@ -8,7 +8,7 @@ const FileUploadSchema = z.strictObject({
 });
 
 const MultiFileUploadSchema = z.strictObject({
-  files: z.array(z.file().max(MAX_FILE_SIZE_BYTES)),
+  file: z.array(z.file().max(MAX_FILE_SIZE_BYTES)),
 });
 
 export class MultiFileUploadDto extends createZodDto(MultiFileUploadSchema) {}
