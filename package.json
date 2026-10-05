@@ -18,6 +18,7 @@
     "prepare": "husky"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.1146.0",
     "@nestjs/common": "^11",
     "@nestjs/config": "3",
     "@nestjs/core": "^11",
