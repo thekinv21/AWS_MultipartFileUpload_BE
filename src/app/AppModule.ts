@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 
+import { PrismaModule } from '@/infrastructure/database/prisma';
+
 import { AwsModule } from './AwsModule';
 
 @Module({
@@ -8,6 +10,7 @@ import { AwsModule } from './AwsModule';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    PrismaModule,
     AwsModule,
   ],
   controllers: [],
