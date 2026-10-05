@@ -1,8 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
 @Injectable()
 export class MultiUploadUseCase {
-  async except(file: Array<Express.Multer.File>) {
-    console.log('Files', file);
+  async except(files: Array<Express.Multer.File>) {
+    Logger.debug('files', files);
   }
 }

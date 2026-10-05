@@ -2,6 +2,8 @@ import { Logger, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule } from '@nestjs/swagger';
 
+import { cleanupOpenApiDoc } from 'nestjs-zod';
+
 import { AppModule } from '@/app/AppModule';
 
 import { swaggerConfig } from '@/infrastructure/config';
@@ -21,7 +23,7 @@ async function bootstrap() {
     SwaggerModule.setup(
       '/docs',
       app,
-      SwaggerModule.createDocument(app, swaggerConfig),
+      cleanupOpenApiDoc(SwaggerModule.createDocument(app, swaggerConfig)),
     );
   }
 
