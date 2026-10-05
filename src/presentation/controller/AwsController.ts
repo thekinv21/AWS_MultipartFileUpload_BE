@@ -6,11 +6,13 @@ import {
   UseInterceptors,
   Version,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiOperation } from '@nestjs/swagger';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
+import { ApiBody, ApiConsumes, ApiOperation } from '@nestjs/swagger';
 
 import { MultiUploadUseCase } from '@/use-case/aws/MultiUploadUseCase';
 import { SingleUploadUseCase } from '@/use-case/aws/SingleUploadUseCase';
+
+import { FileUploadDto, MultiFileUploadDto } from '../dto/aws/request';
 
 @Controller('/aws')
 export class AwsController {
@@ -19,12 +21,6 @@ export class AwsController {
     private readonly multiUploadUseCase: MultiUploadUseCase,
   ) {}
 
-  /**
-   *
-   * @param file
-   * @returns
-   */
-
   @Version('1')
   @Post('/s3-single-upload')
   @ApiOperation({
@@ -32,15 +28,13 @@ export class AwsController {
     description: 'Uploads a single file and stores it in an AWS S3 bucket.',
   })
   @UseInterceptors(FileInterceptor('file'))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    type: FileUploadDto,
+  })
   async singleUpload(@UploadedFile() file: Express.Multer.File) {
     return this.singleUploadUseCase.except(file);
   }
-
-  /**
-   *
-   * @param files
-   * @returns
-   */
 
   @Version('1')
   @Post('/s3-multi-upload')
@@ -48,7 +42,11 @@ export class AwsController {
     summary: 'Upload multiple files to AWS S3',
     description: 'Uploads multiple files and stores them in an AWS S3 bucket.',
   })
-  @UseInterceptors(FileInterceptor('files'))
+  @UseInterceptors(FilesInterceptor('files', 10))
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    type: MultiFileUploadDto,
+  })
   async multiUpload(@UploadedFiles() files: Array<Express.Multer.File>) {
     return this.multiUploadUseCase.except(files);
   }
