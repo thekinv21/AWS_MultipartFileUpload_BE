@@ -1,17 +1,28 @@
 import { Logger, VersioningType } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule } from '@nestjs/swagger';
 
+import helmet from 'helmet';
 import { cleanupOpenApiDoc } from 'nestjs-zod';
 
 import { AppModule } from '@/app/AppModule';
 
-import { swaggerConfig } from '@/infrastructure/config';
+import { createSwaggerConfig } from '@/infrastructure/config';
+
+const DEFAULT_PORT = 4200;
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  const isProduction: boolean = process.env.NODE_ENV === 'production';
+  const configService = app.get(ConfigService);
+
+  const port = Number(configService.get<string>('PORT') ?? DEFAULT_PORT);
+
+  const isProduction: boolean =
+    configService.get<string>('NODE_ENV') === 'production';
+
+  app.use(helmet());
 
   app.enableCors({
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
@@ -28,18 +39,22 @@ async function bootstrap() {
     type: VersioningType.URI,
   });
 
+  app.enableShutdownHooks();
+
   if (!isProduction) {
     SwaggerModule.setup(
       '/docs',
       app,
-      cleanupOpenApiDoc(SwaggerModule.createDocument(app, swaggerConfig)),
+      cleanupOpenApiDoc(
+        SwaggerModule.createDocument(app, createSwaggerConfig(port)),
+      ),
     );
   }
 
-  await app.listen(process.env.PORT ?? 4200);
+  await app.listen(port);
 
   if (!isProduction) {
-    Logger.debug('Swagger UI running on host: http://localhost:4200/docs');
+    Logger.debug(`Swagger UI running on host: http://localhost:${port}/docs`);
   }
 }
 void bootstrap();

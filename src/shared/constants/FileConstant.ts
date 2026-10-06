@@ -1,12 +1,16 @@
 export const MAX_FILE_SIZE_BYTES = 1024 * 1024 * 1024;
 
-export const MAX_TOTAL_UPLOAD_SIZE_BYTES = 1024 * 1024 * 1024;
-
-export const MAX_FILES_PER_REQUEST = 10;
-
 export const MAX_FILE_NAME_LENGTH = 255;
 
 export const MAX_CHUNK_SIZE = 5 * 1024 * 1024;
+
+export const MIN_PART_NUMBER = 1;
+
+export const MAX_PART_NUMBER = 10000;
+
+export const UPLOAD_KEY_PREFIX = 'uploads/';
+
+export const PRESIGNED_URL_EXPIRES_IN_SECONDS = 3600;
 
 export const ALLOWED_FILE_TYPES: Record<string, readonly string[]> = {
   pdf: ['application/pdf'],
@@ -17,7 +21,7 @@ export const ALLOWED_FILE_TYPES: Record<string, readonly string[]> = {
   txt: ['text/plain'],
   xls: ['application/vnd.ms-excel'],
   xlsx: ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
-  csv: ['text/csv'],
+  csv: ['text/csv', 'application/vnd.ms-excel'],
   jpg: ['image/jpeg'],
   jpeg: ['image/jpeg'],
   png: ['image/png'],

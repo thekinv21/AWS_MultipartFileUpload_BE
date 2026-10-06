@@ -1,18 +1,31 @@
 import { createZodDto } from 'nestjs-zod';
 import z from 'zod';
 
-const completeMultipartUploadRequestSchema = z.strictObject({
-  key: z.string().nonempty(),
-  uploadId: z.string().nonempty(),
-  parts: z
-    .array(
-      z.object({
-        PartNumber: z.number().nonnegative(),
-        ETag: z.string().nonempty(),
-      }),
-    )
-    .nonempty(),
-});
+import { MAX_PART_NUMBER } from '@/shared/constants';
+
+import {
+  multipartUploadTargetSchema,
+  partNumberSchema,
+} from './MultipartUploadTargetSchema';
+
+const completeMultipartUploadRequestSchema = multipartUploadTargetSchema.extend(
+  {
+    parts: z
+      .array(
+        z.strictObject({
+          PartNumber: partNumberSchema,
+          ETag: z.string().nonempty(),
+        }),
+      )
+      .nonempty()
+      .max(MAX_PART_NUMBER)
+      .refine(
+        (parts) =>
+          new Set(parts.map((part) => part.PartNumber)).size === parts.length,
+        { message: 'PartNumber values must be unique' },
+      ),
+  },
+);
 
 export class CompleteMultipartUploadRequestDto extends createZodDto(
   completeMultipartUploadRequestSchema,

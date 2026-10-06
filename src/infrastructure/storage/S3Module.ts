@@ -3,6 +3,8 @@ import { ConfigService } from '@nestjs/config';
 
 import { S3Client } from '@aws-sdk/client-s3';
 
+import { UploadPort } from '@/use-case/upload/port/UploadPort';
+
 import { S3Service } from './S3Service';
 
 @Global()
@@ -20,10 +22,16 @@ import { S3Service } from './S3Service';
               'AWS_SECRET_ACCESS_KEY',
             ),
           },
+          /**
+           * Varsayılan (WHEN_SUPPORTED) presigned part URL'lerine boş gövdenin
+           * CRC32 değerini gömer; client gerçek parçayı yüklediğinde S3 reddeder.
+           */
+          requestChecksumCalculation: 'WHEN_REQUIRED',
         }),
     },
     S3Service,
+    { provide: UploadPort, useExisting: S3Service },
   ],
-  exports: [S3Service],
+  exports: [UploadPort],
 })
 export class S3Module {}

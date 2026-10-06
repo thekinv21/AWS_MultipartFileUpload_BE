@@ -1,7 +1,19 @@
-import { Body, Controller, Post, Version } from '@nestjs/common';
-import { ApiBody, ApiOperation } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Version,
+} from '@nestjs/common';
+import { ApiBody, ApiNoContentResponse, ApiOperation } from '@nestjs/swagger';
 
-import { S3Service } from '@/infrastructure/storage';
+import { ZodResponse } from 'nestjs-zod';
+
+import { AbortMultipartUseCase } from '@/use-case/upload/AbortMultipartUseCase';
+import { CompleteMultipartUseCase } from '@/use-case/upload/CompleteMultipartUseCase';
+import { GetPresignedPartUrlUseCase } from '@/use-case/upload/GetPresignedPartUrlUseCase';
+import { InitiateMultipartUseCase } from '@/use-case/upload/InitiateMultipartUseCase';
 
 import {
   AbortMultipartUploadRequestDto,
@@ -10,13 +22,19 @@ import {
   InitiateMultipartUploadRequestDto,
 } from '../dto/upload/request';
 import {
+  CompleteMultipartUploadResponseDto,
   GetPresignedPartUrlResponseDto,
   InitiateMultipartUploadResponseDto,
 } from '../dto/upload/response';
 
 @Controller('/upload')
 export class UploadController {
-  constructor(private readonly s3Service: S3Service) {}
+  constructor(
+    private readonly initiateMultipartUseCase: InitiateMultipartUseCase,
+    private readonly getPresignedUrlUseCase: GetPresignedPartUrlUseCase,
+    private readonly completeMultipartUseCase: CompleteMultipartUseCase,
+    private readonly abortMultipartUseCase: AbortMultipartUseCase,
+  ) {}
 
   @Version('1')
   @Post('/initiate-multipart')
@@ -28,10 +46,13 @@ export class UploadController {
   @ApiBody({
     type: InitiateMultipartUploadRequestDto,
   })
-  async initiateMultipart(
-    @Body() dto: InitiateMultipartUploadRequestDto,
-  ): Promise<InitiateMultipartUploadResponseDto> {
-    return this.s3Service.initiateMultipartUpload(dto);
+  @ZodResponse({
+    status: HttpStatus.CREATED,
+    description: 'Multipart upload session created',
+    type: InitiateMultipartUploadResponseDto,
+  })
+  async initiateMultipart(@Body() dto: InitiateMultipartUploadRequestDto) {
+    return this.initiateMultipartUseCase.execute(dto);
   }
 
   @Version('1')
@@ -44,10 +65,13 @@ export class UploadController {
   @ApiBody({
     type: GetPresignedPartUrlRequestDto,
   })
-  async getPartUrl(
-    @Body() dto: GetPresignedPartUrlRequestDto,
-  ): Promise<GetPresignedPartUrlResponseDto> {
-    return this.s3Service.getPresignedPartUrl(dto);
+  @ZodResponse({
+    status: HttpStatus.CREATED,
+    description: 'Presigned URL for the requested part',
+    type: GetPresignedPartUrlResponseDto,
+  })
+  async getPartUrl(@Body() dto: GetPresignedPartUrlRequestDto) {
+    return this.getPresignedUrlUseCase.execute(dto);
   }
 
   @Version('1')
@@ -60,12 +84,18 @@ export class UploadController {
   @ApiBody({
     type: CompleteMultipartUploadRequestDto,
   })
+  @ZodResponse({
+    status: HttpStatus.CREATED,
+    description: 'Multipart upload completed',
+    type: CompleteMultipartUploadResponseDto,
+  })
   async completeMultipart(@Body() dto: CompleteMultipartUploadRequestDto) {
-    return this.s3Service.completeMultipartUpload(dto);
+    return this.completeMultipartUseCase.execute(dto);
   }
 
   @Version('1')
   @Post('/abort-multipart')
+  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     summary: 'Abort a multipart upload',
     description:
@@ -74,7 +104,10 @@ export class UploadController {
   @ApiBody({
     type: AbortMultipartUploadRequestDto,
   })
-  async abortMultipart(@Body() dto: AbortMultipartUploadRequestDto) {
-    return this.s3Service.abortMultipartUpload(dto);
+  @ApiNoContentResponse({ description: 'Multipart upload aborted' })
+  async abortMultipart(
+    @Body() dto: AbortMultipartUploadRequestDto,
+  ): Promise<void> {
+    await this.abortMultipartUseCase.execute(dto);
   }
 }
