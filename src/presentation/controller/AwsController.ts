@@ -61,7 +61,7 @@ export class AwsController {
     summary: 'Upload multiple files to AWS S3',
     description: 'Uploads multiple files and stores them in an AWS S3 bucket.',
   })
-  @UseInterceptors(FilesInterceptor('file', 10))
+  @UseInterceptors(FilesInterceptor('files', 10))
   @ApiConsumes('multipart/form-data')
   @ApiBody({
     type: MultiFileUploadDto,
