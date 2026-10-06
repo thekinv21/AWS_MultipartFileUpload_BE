@@ -16,10 +16,11 @@ export class InitiateMultipartUseCase {
     contentType,
   }: TInitiateMultipartRequest): Promise<TInitiateMultipartResponse> {
     /**
-     * UUID, aynı isimli dosyaların birbirinin üzerine yazılmasını engeller
+     * Dosyalar alt klasör açılmadan doğrudan prefix altına yazılır.
+     * UUID ön eki, aynı isimli dosyaların birbirinin üzerine yazılmasını engeller.
      */
 
-    const key = `${UPLOAD_KEY_PREFIX}${randomUUID()}/${fileName}`;
+    const key = `${UPLOAD_KEY_PREFIX}${randomUUID()}-${fileName}`;
 
     const uploadId = await this.uploadPort.initiateMultipart(key, contentType);
 

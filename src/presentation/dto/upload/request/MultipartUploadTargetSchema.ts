@@ -11,7 +11,12 @@ import {
  */
 
 export const multipartUploadTargetSchema = z.strictObject({
-  key: z.string().startsWith(UPLOAD_KEY_PREFIX),
+  key: z
+    .string()
+    .startsWith(UPLOAD_KEY_PREFIX)
+    .refine((key) => !key.slice(UPLOAD_KEY_PREFIX.length).includes('/'), {
+      message: `key must be directly under ${UPLOAD_KEY_PREFIX}`,
+    }),
   uploadId: z.string().nonempty(),
 });
 
