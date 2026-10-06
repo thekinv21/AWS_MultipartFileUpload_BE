@@ -1,12 +1,12 @@
 import { createZodDto } from 'nestjs-zod';
 import z from 'zod';
 
-const getPresignedPartUrlRequestSchema = z.strictObject({
+const getPresignedPartUrlSchema = z.strictObject({
   key: z.string().nonempty(),
   uploadId: z.string().nonempty(),
   partNumber: z.number().int().min(1).max(10000),
 });
 
-export class GetPresignedPartUrlRequestDto extends createZodDto(
-  getPresignedPartUrlRequestSchema,
+export class GetPresignedPartUrlDto extends createZodDto(
+  getPresignedPartUrlSchema,
 ) {}
