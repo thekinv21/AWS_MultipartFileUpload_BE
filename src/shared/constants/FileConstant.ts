@@ -6,6 +6,8 @@ export const MAX_FILES_PER_REQUEST = 10;
 
 export const MAX_FILE_NAME_LENGTH = 255;
 
+export const MAX_CHUNK_SIZE = 5 * 1024 * 1024;
+
 export const ALLOWED_FILE_TYPES: Record<string, readonly string[]> = {
   pdf: ['application/pdf'],
   doc: ['application/msword'],
