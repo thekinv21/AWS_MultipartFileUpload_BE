@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
@@ -19,12 +20,12 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 import { PRESIGNED_URL_EXPIRES_IN_SECONDS } from '@/shared/constants';
 
+import { UploadPort } from '@/use-case/upload/port';
 import {
   TCompletedPart,
   TMultipartUploadTarget,
   TUploadedPart,
-  UploadPort,
-} from '@/use-case/upload/port/UploadPort';
+} from '@/use-case/upload/types';
 
 /**
  * Client kaynaklı S3 hata kodları ve karşılık gelen HTTP hataları.
@@ -68,7 +69,7 @@ export class S3Service implements UploadPort {
     );
 
     if (!response.UploadId) {
-      throw new BadRequestException(
+      throw new InternalServerErrorException(
         'S3 did not return an UploadId for the multipart upload',
       );
     }

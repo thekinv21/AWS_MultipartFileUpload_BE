@@ -1,16 +1,8 @@
-export type TMultipartUploadTarget = {
-  key: string;
-  uploadId: string;
-};
-
-export type TCompletedPart = {
-  partNumber: number;
-  etag: string;
-};
-
-export interface TUploadedPart extends TCompletedPart {
-  size: number;
-}
+import {
+  TCompletedPart,
+  TMultipartUploadTarget,
+  TUploadedPart,
+} from '../types';
 
 /**
  * Use-case katmanının depolama sözleşmesi.

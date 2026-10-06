@@ -2,33 +2,53 @@ import { Injectable, PayloadTooLargeException } from '@nestjs/common';
 
 import { MAX_FILE_SIZE_BYTES } from '@/shared/constants';
 
-import { UploadPort } from './port/UploadPort';
-
-export type TCompleteMultipartRequest = {
-  key: string;
-  uploadId: string;
-  parts: { PartNumber: number; ETag: string }[];
-};
-
-export type TCompleteMultipartResponse = {
-  key: string;
-};
+import { UploadPort } from './port';
+import {
+  TCompletedPart,
+  TCompleteMultipartRequest,
+  TCompleteMultipartResponse,
+  TMultipartUploadTarget,
+} from './types';
 
 @Injectable()
 export class CompleteMultipartUseCase {
   constructor(private readonly uploadPort: UploadPort) {}
 
-  async execute(
-    input: TCompleteMultipartRequest,
-  ): Promise<TCompleteMultipartResponse> {
-    const { key, uploadId } = input;
-    const target = { key, uploadId };
+  async execute({
+    key,
+    uploadId,
+    parts,
+  }: TCompleteMultipartRequest): Promise<TCompleteMultipartResponse> {
+    const target: TMultipartUploadTarget = { key, uploadId };
+
+    const completedParts: TCompletedPart[] = parts.map((part) => ({
+      partNumber: part.PartNumber,
+      etag: part.ETag,
+    }));
+
+    await this.assertWithinSizeLimit(target, completedParts);
 
     /**
-     * Client presigned URL ile istediği boyutta part yükleyebilir.
-     * Toplam boyut sınırı burada, S3'teki gerçek part boyutlarına göre uygulanır.
+     * AWS S3 parçaların artan sırada gönderilmesini şart koşar
      */
 
+    completedParts.sort((a, b) => a.partNumber - b.partNumber);
+
+    await this.uploadPort.completeMultipart(target, completedParts);
+
+    return { key };
+  }
+
+  /**
+   * Client presigned URL ile istediği boyutta part yükleyebilir.
+   * Toplam boyut sınırı burada, S3'teki gerçek part boyutlarına göre uygulanır;
+   * sınır aşılırsa yükleme iptal edilir.
+   */
+
+  private async assertWithinSizeLimit(
+    target: TMultipartUploadTarget,
+    parts: TCompletedPart[],
+  ): Promise<void> {
     const uploadedSizes = new Map(
       (await this.uploadPort.listParts(target)).map((part) => [
         part.partNumber,
@@ -36,8 +56,8 @@ export class CompleteMultipartUseCase {
       ]),
     );
 
-    const totalSize = input.parts.reduce(
-      (total, part) => total + (uploadedSizes.get(part.PartNumber) ?? 0),
+    const totalSize = parts.reduce(
+      (total, part) => total + (uploadedSizes.get(part.partNumber) ?? 0),
       0,
     );
 
@@ -48,17 +68,5 @@ export class CompleteMultipartUseCase {
         `File size must not exceed ${MAX_FILE_SIZE_BYTES} bytes`,
       );
     }
-
-    /**
-     * AWS S3 parçaların artan sırada gönderilmesini şart koşar
-     */
-
-    const parts = input.parts
-      .map((part) => ({ partNumber: part.PartNumber, etag: part.ETag }))
-      .sort((a, b) => a.partNumber - b.partNumber);
-
-    await this.uploadPort.completeMultipart(target, parts);
-
-    return { key };
   }
 }

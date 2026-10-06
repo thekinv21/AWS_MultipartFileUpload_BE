@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config';
 
 import { S3Client } from '@aws-sdk/client-s3';
 
-import { UploadPort } from '@/use-case/upload/port/UploadPort';
+import { UploadPort } from '@/use-case/upload/port';
 
 import { S3Service } from './S3Service';
 

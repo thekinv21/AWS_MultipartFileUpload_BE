@@ -4,32 +4,24 @@ import { randomUUID } from 'crypto';
 
 import { MAX_CHUNK_SIZE, UPLOAD_KEY_PREFIX } from '@/shared/constants';
 
-import { UploadPort } from './port/UploadPort';
-
-export type TInitiateMultipartRequest = {
-  fileName: string;
-  contentType: string;
-};
-
-export type TInitiateMultipartResponse = {
-  key: string;
-  uploadId: string;
-  chunkSize: number;
-};
+import { UploadPort } from './port';
+import { TInitiateMultipartRequest, TInitiateMultipartResponse } from './types';
 
 @Injectable()
 export class InitiateMultipartUseCase {
   constructor(private readonly uploadPort: UploadPort) {}
 
-  async execute(
-    input: TInitiateMultipartRequest,
-  ): Promise<TInitiateMultipartResponse> {
-    const key = `${UPLOAD_KEY_PREFIX}${randomUUID()}/${input.fileName}`;
+  async execute({
+    fileName,
+    contentType,
+  }: TInitiateMultipartRequest): Promise<TInitiateMultipartResponse> {
+    /**
+     * UUID, aynı isimli dosyaların birbirinin üzerine yazılmasını engeller
+     */
 
-    const uploadId = await this.uploadPort.initiateMultipart(
-      key,
-      input.contentType,
-    );
+    const key = `${UPLOAD_KEY_PREFIX}${randomUUID()}/${fileName}`;
+
+    const uploadId = await this.uploadPort.initiateMultipart(key, contentType);
 
     return { key, uploadId, chunkSize: MAX_CHUNK_SIZE };
   }

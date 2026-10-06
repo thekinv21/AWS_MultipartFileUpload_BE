@@ -1,12 +1,13 @@
 import { Injectable } from '@nestjs/common';
 
-import { TMultipartUploadTarget, UploadPort } from './port/UploadPort';
+import { UploadPort } from './port';
+import { TAbortMultipartRequest } from './types';
 
 @Injectable()
 export class AbortMultipartUseCase {
   constructor(private readonly uploadPort: UploadPort) {}
 
-  async execute(input: TMultipartUploadTarget): Promise<void> {
+  async execute(input: TAbortMultipartRequest): Promise<void> {
     await this.uploadPort.abortMultipart(input);
   }
 }
