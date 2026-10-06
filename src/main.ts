@@ -13,6 +13,15 @@ async function bootstrap() {
 
   const isProduction: boolean = process.env.NODE_ENV === 'production';
 
+  app.enableCors({
+    methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
+    origin: [
+      'http://localhost:3000',
+      'http://localhost:4200',
+      'http://localhost:3001',
+    ],
+  });
+
   app.setGlobalPrefix('/api');
 
   app.enableVersioning({
