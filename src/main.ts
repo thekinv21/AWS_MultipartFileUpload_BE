@@ -6,31 +6,27 @@ import { SwaggerModule } from '@nestjs/swagger';
 import helmet from 'helmet';
 import { cleanupOpenApiDoc } from 'nestjs-zod';
 
+import { TEnv } from '@/shared/types';
+
 import { AppModule } from '@/app/AppModule';
 
 import { createSwaggerConfig } from '@/infrastructure/config';
 
-const DEFAULT_PORT = 4200;
-
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  const configService = app.get(ConfigService);
+  const configService = app.get<ConfigService<TEnv, true>>(ConfigService);
 
-  const port = Number(configService.get<string>('PORT') ?? DEFAULT_PORT);
+  const port = configService.get('PORT', { infer: true });
 
   const isProduction: boolean =
-    configService.get<string>('NODE_ENV') === 'production';
+    configService.get('NODE_ENV', { infer: true }) === 'production';
 
   app.use(helmet());
 
   app.enableCors({
     methods: ['GET', 'HEAD', 'PUT', 'PATCH', 'POST', 'DELETE'],
-    origin: [
-      'http://localhost:3000',
-      'http://localhost:4200',
-      'http://localhost:3001',
-    ],
+    origin: configService.get('CORS_ORIGINS', { infer: true }),
   });
 
   app.setGlobalPrefix('/api');

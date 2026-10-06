@@ -4,6 +4,8 @@ import { APP_INTERCEPTOR, APP_PIPE } from '@nestjs/core';
 
 import { ZodSerializerInterceptor, ZodValidationPipe } from 'nestjs-zod';
 
+import { validateEnv } from '@/shared/config';
+
 import { PrismaModule } from '@/infrastructure/database/prisma';
 import { S3Module } from '@/infrastructure/storage';
 
@@ -13,6 +15,7 @@ import { UploadModule } from './UploadModule';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      validate: validateEnv,
     }),
     PrismaModule,
     S3Module,

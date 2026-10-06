@@ -3,6 +3,8 @@ import { ConfigService } from '@nestjs/config';
 
 import { S3Client } from '@aws-sdk/client-s3';
 
+import { TEnv } from '@/shared/types';
+
 import { UploadPort } from '@/use-case/upload/port';
 
 import { S3Service } from './S3Service';
@@ -13,14 +15,16 @@ import { S3Service } from './S3Service';
     {
       provide: S3Client,
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) =>
+      useFactory: (configService: ConfigService<TEnv, true>) =>
         new S3Client({
-          region: configService.getOrThrow<string>('AWS_S3_REGION'),
+          region: configService.get('AWS_S3_REGION', { infer: true }),
           credentials: {
-            accessKeyId: configService.getOrThrow<string>('AWS_ACCESS_KEY_ID'),
-            secretAccessKey: configService.getOrThrow<string>(
-              'AWS_SECRET_ACCESS_KEY',
-            ),
+            accessKeyId: configService.get('AWS_ACCESS_KEY_ID', {
+              infer: true,
+            }),
+            secretAccessKey: configService.get('AWS_SECRET_ACCESS_KEY', {
+              infer: true,
+            }),
           },
           /**
            * Varsayılan (WHEN_SUPPORTED) presigned part URL'lerine boş gövdenin

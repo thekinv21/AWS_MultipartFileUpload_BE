@@ -18,7 +18,7 @@ import {
 } from '@aws-sdk/client-s3';
 import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
-import { PRESIGNED_URL_EXPIRES_IN_SECONDS } from '@/shared/constants';
+import { TEnv } from '@/shared/types';
 
 import { UploadPort } from '@/use-case/upload/port';
 import {
@@ -45,12 +45,17 @@ const S3_BAD_REQUEST_ERRORS = new Set([
 export class S3Service implements UploadPort {
   private readonly logger = new Logger(S3Service.name);
   private readonly bucketName: string;
+  private readonly presignedUrlExpiresIn: number;
 
   constructor(
     private readonly s3Client: S3Client,
-    private readonly configService: ConfigService,
+    configService: ConfigService<TEnv, true>,
   ) {
-    this.bucketName = this.configService.getOrThrow<string>('AWS_BUCKET_NAME');
+    this.bucketName = configService.get('AWS_BUCKET_NAME', { infer: true });
+    this.presignedUrlExpiresIn = configService.get(
+      'AWS_PRESIGNED_URL_EXPIRES_IN',
+      { infer: true },
+    );
   }
 
   /**
@@ -94,7 +99,7 @@ export class S3Service implements UploadPort {
 
     return this.run(() =>
       getSignedUrl(this.s3Client, command, {
-        expiresIn: PRESIGNED_URL_EXPIRES_IN_SECONDS,
+        expiresIn: this.presignedUrlExpiresIn,
       }),
     );
   }

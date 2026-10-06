@@ -1,16 +1,16 @@
-export const MAX_FILE_SIZE_BYTES = 1024 * 1024 * 1024;
+import { env } from '../config';
 
-export const MAX_FILE_NAME_LENGTH = 255;
+export const MAX_FILE_SIZE_BYTES = env.AWS_FILE_MAX_SIZE_BYTES;
 
-export const MAX_CHUNK_SIZE = 5 * 1024 * 1024;
+export const MAX_FILE_NAME_LENGTH = env.AWS_FILE_MAX_NAME_LENGTH;
 
-export const MIN_PART_NUMBER = 1;
+export const MAX_CHUNK_SIZE = env.AWS_FILE_CHUNK_SIZE;
 
-export const MAX_PART_NUMBER = 10000;
+export const MIN_PART_NUMBER = env.AWS_FILE_MIN_PART_NUMBER;
 
-export const UPLOAD_KEY_PREFIX = 'uploads/';
+export const MAX_PART_NUMBER = env.AWS_FILE_MAX_PART_NUMBER;
 
-export const PRESIGNED_URL_EXPIRES_IN_SECONDS = 3600;
+export const UPLOAD_KEY_PREFIX = env.AWS_UPLOAD_KEY_PREFIX;
 
 export const ALLOWED_FILE_TYPES: Record<string, readonly string[]> = {
   pdf: ['application/pdf'],
