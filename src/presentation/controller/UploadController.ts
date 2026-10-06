@@ -11,17 +11,14 @@ import { ApiBody, ApiConsumes, ApiOperation } from '@nestjs/swagger';
 
 import { FileValidationPipe } from '@/shared/pipes';
 
-import { MultiUploadUseCase } from '@/use-case/aws/MultiUploadUseCase';
-import { SingleUploadUseCase } from '@/use-case/aws/SingleUploadUseCase';
+import {
+  FileUploadRequestDto,
+  MultiFileUploadRequestDto,
+} from '../dto/upload/request';
 
-import { FileUploadDto, MultiFileUploadDto } from '../dto/aws/request';
-
-@Controller('/aws')
-export class AwsController {
-  constructor(
-    private readonly singleUploadUseCase: SingleUploadUseCase,
-    private readonly multiUploadUseCase: MultiUploadUseCase,
-  ) {}
+@Controller('/upload')
+export class UploadController {
+  constructor() {}
 
   /**
    *
@@ -31,7 +28,7 @@ export class AwsController {
    */
 
   @Version('1')
-  @Post('/s3-single-upload')
+  @Post('/aws-s3-single-upload')
   @ApiOperation({
     summary: 'Upload a single file to AWS S3',
     description: 'Uploads a single file and stores it in an AWS S3 bucket.',
@@ -39,13 +36,13 @@ export class AwsController {
   @UseInterceptors(FileInterceptor('file'))
   @ApiConsumes('multipart/form-data')
   @ApiBody({
-    type: FileUploadDto,
+    type: FileUploadRequestDto,
   })
   async singleUpload(
     @UploadedFile(new FileValidationPipe())
     file: Express.Multer.File,
   ) {
-    return this.singleUploadUseCase.except(file);
+    return null;
   }
 
   /**
@@ -56,19 +53,19 @@ export class AwsController {
    */
 
   @Version('1')
-  @Post('/s3-multi-upload')
+  @Post('/aws-s3-multi-upload')
   @ApiOperation({
     summary: 'Upload multiple files to AWS S3',
     description: 'Uploads multiple files and stores them in an AWS S3 bucket.',
   })
-  @UseInterceptors(FilesInterceptor('files', 10))
+  @UseInterceptors(FilesInterceptor('file', 10))
   @ApiConsumes('multipart/form-data')
   @ApiBody({
-    type: MultiFileUploadDto,
+    type: MultiFileUploadRequestDto,
   })
   async multiUpload(
     @UploadedFiles(new FileValidationPipe()) files: Array<Express.Multer.File>,
   ) {
-    return this.multiUploadUseCase.except(files);
+    return null;
   }
 }

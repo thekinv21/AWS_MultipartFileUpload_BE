@@ -7,7 +7,7 @@ import { ZodSerializerInterceptor, ZodValidationPipe } from 'nestjs-zod';
 import { PrismaModule } from '@/infrastructure/database/prisma';
 import { S3Module } from '@/infrastructure/storage';
 
-import { AwsModule } from './AwsModule';
+import { UploadModule } from './UploadModule';
 
 @Module({
   imports: [
@@ -16,7 +16,7 @@ import { AwsModule } from './AwsModule';
     }),
     PrismaModule,
     S3Module,
-    AwsModule,
+    UploadModule,
   ],
   controllers: [],
   providers: [
