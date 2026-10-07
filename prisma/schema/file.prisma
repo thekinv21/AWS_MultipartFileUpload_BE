@@ -3,21 +3,15 @@ enum FileAccess {
   PRIVATE
 }
 
-enum FileStatus {
-  PENDING
-  UPLOADED
-}
-
 model File {
   id String @id @default(cuid())
 
-  name       String
-  key        String     @unique
-  type       String?
-  size       BigInt?
-  access     FileAccess @default(PRIVATE)
-  status     FileStatus @default(PENDING)
-  uploadedAt DateTime?
-  createdAt  DateTime   @default(now())
-  updatedAt  DateTime   @updatedAt
+  name      String
+  key       String     @unique
+  url       String?
+  type      String?
+  size      BigInt?
+  access    FileAccess @default(PRIVATE)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
 }
