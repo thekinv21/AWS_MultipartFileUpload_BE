@@ -1,11 +1,11 @@
 import { createZodDto } from 'nestjs-zod';
 
 import {
-  multipartUploadTargetSchema,
+  multipartTargetSchema,
   partNumberSchema,
-} from './MultipartUploadTargetSchema';
+} from './MultipartTargetSchema';
 
-const getPresignedPartUrlRequestSchema = multipartUploadTargetSchema.extend({
+const getPresignedPartUrlRequestSchema = multipartTargetSchema.extend({
   partNumber: partNumberSchema,
 });
 

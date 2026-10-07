@@ -8,7 +8,7 @@ import { multipartKeySchema } from './MultipartKeySchema';
  * Multipart upload'a ait endpoint'lerde ortak kullanılan alanlar.
  */
 
-export const multipartUploadTargetSchema = z.strictObject({
+export const multipartTargetSchema = z.strictObject({
   key: multipartKeySchema,
   uploadId: z.string().nonempty(),
 });

@@ -1,6 +1,6 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 
-import { parseMultipartKey } from './MultipartKey';
+import { getMultipartKeyInfo } from './MultipartKey';
 import { MultipartPort } from './port';
 import { TGetDownloadUrlRequest, TGetDownloadUrlResponse } from './types';
 
@@ -11,16 +11,9 @@ export class GetDownloadUrlUseCase {
   async execute({
     key,
   }: TGetDownloadUrlRequest): Promise<TGetDownloadUrlResponse> {
-    const keyInfo = parseMultipartKey(key);
+    const { name } = getMultipartKeyInfo(key);
 
-    if (!keyInfo) {
-      throw new NotFoundException('File not found');
-    }
-
-    const url = await this.multipartPort.getPresignedDownloadUrl(
-      key,
-      keyInfo.name,
-    );
+    const url = await this.multipartPort.getPresignedDownloadUrl(key, name);
 
     return { url };
   }

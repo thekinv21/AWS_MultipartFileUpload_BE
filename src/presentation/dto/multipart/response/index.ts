@@ -1,4 +1,4 @@
-export * from './CompleteMultipartUploadResponseDto';
+export * from './CompleteMultipartResponseDto';
 export * from './GetDownloadUrlResponseDto';
 export * from './GetPresignedPartUrlResponseDto';
-export * from './InitiateMultipartUploadResponseDto';
+export * from './InitiateMultipartResponseDto';

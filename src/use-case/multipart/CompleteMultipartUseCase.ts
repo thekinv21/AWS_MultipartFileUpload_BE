@@ -1,19 +1,14 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  PayloadTooLargeException,
-} from '@nestjs/common';
+import { Injectable, PayloadTooLargeException } from '@nestjs/common';
 
 import { MAX_FILE_SIZE_BYTES } from '@/shared/constants';
 
-import { parseMultipartKey } from './MultipartKey';
+import { getMultipartKeyInfo } from './MultipartKey';
 import { MultipartPort } from './port';
 import {
   TCompletedPart,
-  TCompleteMultipartUploadRequest,
-  TCompleteMultipartUploadResponse,
-  TMultipartKeyInfo,
-  TMultipartUploadTarget,
+  TCompleteMultipartRequest,
+  TCompleteMultipartResponse,
+  TMultipartTarget,
 } from './types';
 
 @Injectable()
@@ -24,14 +19,14 @@ export class CompleteMultipartUseCase {
     key,
     uploadId,
     parts,
-  }: TCompleteMultipartUploadRequest): Promise<TCompleteMultipartUploadResponse> {
-    const target: TMultipartUploadTarget = { key, uploadId };
+  }: TCompleteMultipartRequest): Promise<TCompleteMultipartResponse> {
+    const target: TMultipartTarget = { key, uploadId };
 
     /**
      * Key'den okunan bilgiler, geri alınamayan S3 complete'ten önce hazırlanır.
      */
 
-    const { name, extension, isPublic } = this.parseKey(key);
+    const { name, extension, isPublic } = getMultipartKeyInfo(key);
 
     /**
      * AWS S3 parçaların artan sırada gönderilmesini şart koşar
@@ -56,27 +51,13 @@ export class CompleteMultipartUseCase {
   }
 
   /**
-   * DTO key biçimini zaten doğrular; buraya ulaşan geçersiz key bir programlama hatasıdır.
-   */
-
-  private parseKey(key: string): TMultipartKeyInfo {
-    const keyInfo = parseMultipartKey(key);
-
-    if (!keyInfo) {
-      throw new InternalServerErrorException(`Unexpected key format: ${key}`);
-    }
-
-    return keyInfo;
-  }
-
-  /**
    * Client presigned URL ile istediği boyutta part yükleyebilir.
    * Toplam boyut sınırı burada, S3'teki gerçek part boyutlarına göre uygulanır;
    * sınır aşılırsa yükleme iptal edilir. Toplam boyutu döndürür.
    */
 
   private async assertWithinSizeLimit(
-    target: TMultipartUploadTarget,
+    target: TMultipartTarget,
     parts: TCompletedPart[],
   ): Promise<number> {
     const uploadedSizes = new Map(

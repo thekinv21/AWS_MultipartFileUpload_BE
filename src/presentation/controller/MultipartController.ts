@@ -20,17 +20,17 @@ import {
 } from '@/use-case/multipart';
 
 import {
-  AbortMultipartUploadRequestDto,
-  CompleteMultipartUploadRequestDto,
+  AbortMultipartRequestDto,
+  CompleteMultipartRequestDto,
   GetDownloadUrlRequestDto,
   GetPresignedPartUrlRequestDto,
-  InitiateMultipartUploadRequestDto,
+  InitiateMultipartRequestDto,
 } from '../dto/multipart/request';
 import {
-  CompleteMultipartUploadResponseDto,
+  CompleteMultipartResponseDto,
   GetDownloadUrlResponseDto,
   GetPresignedPartUrlResponseDto,
-  InitiateMultipartUploadResponseDto,
+  InitiateMultipartResponseDto,
 } from '../dto/multipart/response';
 
 @Controller({ path: '/multipart', version: '1' })
@@ -52,11 +52,9 @@ export class MultipartController {
   @ZodResponse({
     status: HttpStatus.CREATED,
     description: 'Multipart upload session created',
-    type: InitiateMultipartUploadResponseDto,
+    type: InitiateMultipartResponseDto,
   })
-  async initiateMultipartUpload(
-    @Body() dto: InitiateMultipartUploadRequestDto,
-  ) {
+  async initiateMultipart(@Body() dto: InitiateMultipartRequestDto) {
     return this.initiateMultipartUseCase.execute(dto);
   }
 
@@ -84,11 +82,9 @@ export class MultipartController {
   @ZodResponse({
     status: HttpStatus.CREATED,
     description: 'Multipart upload completed',
-    type: CompleteMultipartUploadResponseDto,
+    type: CompleteMultipartResponseDto,
   })
-  async completeMultipartUpload(
-    @Body() dto: CompleteMultipartUploadRequestDto,
-  ) {
+  async completeMultipart(@Body() dto: CompleteMultipartRequestDto) {
     return this.completeMultipartUseCase.execute(dto);
   }
 
@@ -99,9 +95,7 @@ export class MultipartController {
     description:
       'Aborts an active multipart upload and discards all uploaded parts associated with the upload.',
   })
-  async abortMultipartUpload(
-    @Body() dto: AbortMultipartUploadRequestDto,
-  ): Promise<void> {
+  async abortMultipart(@Body() dto: AbortMultipartRequestDto): Promise<void> {
     await this.abortMultipartUseCase.execute(dto);
   }
 

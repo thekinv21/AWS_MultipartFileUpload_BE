@@ -7,7 +7,7 @@ import { getFileExtension } from '@/shared/utils';
 const hasNoControlCharacters = (value: string): boolean =>
   !/\p{Cc}/u.test(value);
 
-const initiateMultipartUploadRequestSchema = z
+const initiateMultipartRequestSchema = z
   .strictObject({
     fileName: z
       .string()
@@ -44,6 +44,6 @@ const initiateMultipartUploadRequestSchema = z
     }
   });
 
-export class InitiateMultipartUploadRequestDto extends createZodDto(
-  initiateMultipartUploadRequestSchema,
+export class InitiateMultipartRequestDto extends createZodDto(
+  initiateMultipartRequestSchema,
 ) {}

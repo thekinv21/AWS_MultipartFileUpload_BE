@@ -1,3 +1,5 @@
+import { BadRequestException } from '@nestjs/common';
+
 import { randomUUID } from 'crypto';
 
 import { FILE_KEY_PREFIX } from '@/shared/constants';
@@ -51,4 +53,19 @@ export function parseMultipartKey(key: string): TMultipartKeyInfo | null {
     extension: getFileExtension(name) ?? '',
     isPublic: folder === 'public',
   };
+}
+
+/**
+ * Use case'ler için: DTO key biçimini zaten doğrular, yine de geçersiz bir key
+ * gelirse her uç aynı 400 hatasını döner.
+ */
+
+export function getMultipartKeyInfo(key: string): TMultipartKeyInfo {
+  const keyInfo = parseMultipartKey(key);
+
+  if (!keyInfo) {
+    throw new BadRequestException('Invalid key format');
+  }
+
+  return keyInfo;
 }

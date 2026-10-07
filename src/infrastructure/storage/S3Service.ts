@@ -25,18 +25,17 @@ import { TEnv } from '@/shared/types';
 import { MultipartPort } from '@/use-case/multipart/port';
 import {
   TCompletedPart,
-  TMultipartUploadTarget,
+  TMultipartTarget,
   TUploadedPart,
 } from '@/use-case/multipart/types';
 
 /**
  * Client kaynaklı S3 hata kodları ve karşılık gelen HTTP hataları.
- * HeadObject gövdesiz yanıt döndüğü için hata adı `NoSuchKey` değil `NotFound` olur.
+ * HeadObject gövdesiz yanıt döndüğü için dosya bulunamadığında hata adı `NotFound` olur.
  */
 
 const S3_NOT_FOUND_ERRORS = new Map([
   ['NoSuchUpload', 'Multipart upload not found'],
-  ['NoSuchKey', 'File not found'],
   ['NotFound', 'File not found'],
 ]);
 
@@ -104,7 +103,7 @@ export class S3Service implements MultipartPort {
    */
 
   getPresignedPartUrl(
-    { key, uploadId }: TMultipartUploadTarget,
+    { key, uploadId }: TMultipartTarget,
     partNumber: number,
   ): Promise<string> {
     const command = new UploadPartCommand({
@@ -122,14 +121,14 @@ export class S3Service implements MultipartPort {
   }
 
   /**
-   * @param TMultipartUploadTarget
+   * @param TMultipartTarget
    * @returns S3'e yüklenmiş tüm parçaları sayfa sayfa listeler.
    */
 
   async listParts({
     key,
     uploadId,
-  }: TMultipartUploadTarget): Promise<TUploadedPart[]> {
+  }: TMultipartTarget): Promise<TUploadedPart[]> {
     const parts: TUploadedPart[] = [];
     let partNumberMarker: string | undefined;
 
@@ -160,7 +159,7 @@ export class S3Service implements MultipartPort {
   }
 
   async completeMultipart(
-    { key, uploadId }: TMultipartUploadTarget,
+    { key, uploadId }: TMultipartTarget,
     parts: TCompletedPart[],
   ): Promise<void> {
     await this.run(() =>
@@ -180,10 +179,7 @@ export class S3Service implements MultipartPort {
     );
   }
 
-  async abortMultipart({
-    key,
-    uploadId,
-  }: TMultipartUploadTarget): Promise<void> {
+  async abortMultipart({ key, uploadId }: TMultipartTarget): Promise<void> {
     await this.run(() =>
       this.s3Client.send(
         new AbortMultipartUploadCommand({

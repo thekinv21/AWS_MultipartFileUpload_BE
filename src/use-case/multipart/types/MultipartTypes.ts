@@ -1,4 +1,4 @@
-export type TMultipartUploadTarget = {
+export type TMultipartTarget = {
   key: string;
   uploadId: string;
 };

@@ -4,10 +4,7 @@ import { MAX_CHUNK_SIZE } from '@/shared/constants';
 
 import { buildMultipartKey } from './MultipartKey';
 import { MultipartPort } from './port';
-import {
-  TInitiateMultipartUploadRequest,
-  TInitiateMultipartUploadResponse,
-} from './types';
+import { TInitiateMultipartRequest, TInitiateMultipartResponse } from './types';
 
 @Injectable()
 export class InitiateMultipartUseCase {
@@ -17,7 +14,7 @@ export class InitiateMultipartUseCase {
     fileName,
     contentType,
     isPublic,
-  }: TInitiateMultipartUploadRequest): Promise<TInitiateMultipartUploadResponse> {
+  }: TInitiateMultipartRequest): Promise<TInitiateMultipartResponse> {
     const key = buildMultipartKey(fileName, isPublic);
 
     const uploadId = await this.multipartPort.initiateMultipart(
