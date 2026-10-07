@@ -17,19 +17,16 @@ export class InitiateMultipartUploadUseCase {
   async execute({
     fileName,
     contentType,
+    isPublic,
   }: TInitiateMultipartUploadRequest): Promise<TInitiateMultipartUploadResponse> {
-    /**
-     * Dosyalar alt klasör açılmadan doğrudan prefix altına yazılır.
-     * UUID ön eki, aynı isimli dosyaların birbirinin üzerine yazılmasını engeller.
-     */
-
-    const key = `${FILE_KEY_PREFIX}${randomUUID()}-${fileName}`;
+    const folder = isPublic ? 'public' : 'private';
+    const key = `${FILE_KEY_PREFIX}${folder}/${randomUUID()}-${fileName}`;
 
     const uploadId = await this.fileStoragePort.initiateMultipartUpload(
       key,
       contentType,
     );
 
-    return { key, uploadId, chunkSize: MAX_CHUNK_SIZE };
+    return { key, uploadId, chunkSize: MAX_CHUNK_SIZE, isPublic };
   }
 }

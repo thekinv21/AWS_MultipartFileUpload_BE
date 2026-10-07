@@ -11,6 +11,7 @@ import {
   AbortMultipartUploadCommand,
   CompleteMultipartUploadCommand,
   CreateMultipartUploadCommand,
+  DeleteObjectCommand,
   GetObjectCommand,
   HeadObjectCommand,
   ListPartsCommand,
@@ -56,6 +57,7 @@ export class S3Service implements FileStoragePort {
   private readonly logger = new Logger(S3Service.name);
   private readonly bucketName: string;
   private readonly presignedUrlExpiresIn: number;
+  private readonly publicBaseUrl: string;
 
   constructor(
     private readonly s3Client: S3Client,
@@ -66,6 +68,9 @@ export class S3Service implements FileStoragePort {
       'AWS_PRESIGNED_URL_EXPIRES_IN',
       { infer: true },
     );
+    this.publicBaseUrl =
+      configService.get('AWS_PUBLIC_BASE_URL', { infer: true }) ??
+      `https://${this.bucketName}.s3.${configService.get('AWS_S3_REGION', { infer: true })}.amazonaws.com`;
   }
 
   /**
@@ -197,7 +202,7 @@ export class S3Service implements FileStoragePort {
   }
 
   /**
-   * Dosyanın varlığını doğrular ve indirme için presigned URL üretir.
+   * İndirme için presigned URL üretir.
    * Content-Disposition, tarayıcının dosyayı orijinal adıyla kaydetmesini sağlar.
    */
 
@@ -205,12 +210,6 @@ export class S3Service implements FileStoragePort {
     key: string,
     fileName: string,
   ): Promise<string> {
-    await this.run(() =>
-      this.s3Client.send(
-        new HeadObjectCommand({ Bucket: this.bucketName, Key: key }),
-      ),
-    );
-
     const command = new GetObjectCommand({
       Bucket: this.bucketName,
       Key: key,
@@ -222,6 +221,45 @@ export class S3Service implements FileStoragePort {
         expiresIn: this.presignedUrlExpiresIn,
       }),
     );
+  }
+
+  /**
+   * Nesnenin S3'teki içerik türünü döndürür.
+   */
+
+  async getContentType(key: string): Promise<string> {
+    const response = await this.run(() =>
+      this.s3Client.send(
+        new HeadObjectCommand({ Bucket: this.bucketName, Key: key }),
+      ),
+    );
+
+    /**
+     * S3, içerik türü verilmemiş nesneler için bu değeri kullanır.
+     */
+    return response.ContentType ?? 'application/octet-stream';
+  }
+
+  /**
+   * Nesneyi kalıcı olarak siler.
+   */
+
+  async deleteObject(key: string): Promise<void> {
+    await this.run(() =>
+      this.s3Client.send(
+        new DeleteObjectCommand({ Bucket: this.bucketName, Key: key }),
+      ),
+    );
+  }
+
+  /**
+   * Public klasördeki nesnenin kalıcı URL'ini üretir; key'in her parçası encode edilir.
+   */
+
+  getPublicUrl(key: string): string {
+    const path = key.split('/').map(encodeURIComponent).join('/');
+
+    return `${this.publicBaseUrl}/${path}`;
   }
 
   /**

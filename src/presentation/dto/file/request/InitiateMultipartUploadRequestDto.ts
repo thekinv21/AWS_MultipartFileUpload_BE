@@ -26,6 +26,7 @@ const initiateMultipartUploadRequestSchema = z
         message: 'fileName must not contain control characters',
       }),
     contentType: z.string().nonempty(),
+    isPublic: z.boolean().default(false),
   })
   .superRefine(({ fileName, contentType }, ctx) => {
     const extension = getFileExtension(fileName);

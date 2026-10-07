@@ -4,11 +4,6 @@ import {
   TUploadedPart,
 } from '../types';
 
-/**
- * Use-case katmanının depolama sözleşmesi.
- * Infrastructure katmanı (S3Service) bu sınıfı uygular ve DI token olarak bağlar.
- */
-
 export abstract class FileStoragePort {
   abstract initiateMultipartUpload(
     key: string,
@@ -33,4 +28,10 @@ export abstract class FileStoragePort {
     key: string,
     fileName: string,
   ): Promise<string>;
+
+  abstract getContentType(key: string): Promise<string>;
+
+  abstract deleteObject(key: string): Promise<void>;
+
+  abstract getPublicUrl(key: string): string;
 }

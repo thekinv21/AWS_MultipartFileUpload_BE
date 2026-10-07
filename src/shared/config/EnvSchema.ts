@@ -37,6 +37,10 @@ export const envSchema = z
     AWS_S3_REGION: nonEmptyString(),
     AWS_ACCESS_KEY_ID: nonEmptyString(),
     AWS_SECRET_ACCESS_KEY: nonEmptyString(),
+    AWS_PUBLIC_BASE_URL: z
+      .url()
+      .transform((value) => value.replace(/\/+$/, ''))
+      .optional(),
 
     AWS_UPLOAD_KEY_PREFIX: z.string().trim().nonempty().endsWith('/'),
     AWS_PRESIGNED_URL_EXPIRES_IN: positiveInt().max(

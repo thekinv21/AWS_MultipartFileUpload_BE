@@ -30,6 +30,3 @@ export const ALLOWED_FILE_TYPES: Record<string, readonly string[]> = {
   bmp: ['image/bmp'],
   ico: ['image/x-icon', 'image/vnd.microsoft.icon'],
 };
-
-export const ALLOWED_MIME_TYPES: string[] =
-  Object.values(ALLOWED_FILE_TYPES).flat();

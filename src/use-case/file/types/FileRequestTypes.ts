@@ -3,6 +3,7 @@ import { TMultipartUploadTarget } from './MultipartUploadTypes';
 export type TInitiateMultipartUploadRequest = {
   fileName: string;
   contentType: string;
+  isPublic: boolean;
 };
 
 export type TGetPresignedPartUrlRequest = TMultipartUploadTarget & {
