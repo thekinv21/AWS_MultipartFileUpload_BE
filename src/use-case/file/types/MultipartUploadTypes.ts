@@ -8,6 +8,7 @@ export type TCompletedPart = {
   etag: string;
 };
 
-export type TUploadedPart = TCompletedPart & {
+export type TUploadedPart = {
+  partNumber: number;
   size: number;
 };

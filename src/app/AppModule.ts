@@ -9,7 +9,7 @@ import { validateEnv } from '@/shared/config';
 import { PrismaModule } from '@/infrastructure/database/prisma';
 import { S3Module } from '@/infrastructure/storage';
 
-import { FileModule } from './FileModule';
+import { MultipartModule } from './MultipartModule';
 
 @Module({
   imports: [
@@ -19,9 +19,8 @@ import { FileModule } from './FileModule';
     }),
     PrismaModule,
     S3Module,
-    FileModule,
+    MultipartModule,
   ],
-  controllers: [],
   providers: [
     { provide: APP_PIPE, useClass: ZodValidationPipe },
     { provide: APP_INTERCEPTOR, useClass: ZodSerializerInterceptor },

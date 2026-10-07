@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 
-import { FileController } from '@/presentation/controller/FileController';
+import { MultipartController } from '@/presentation/controller/MultipartController';
 
 import { AbortMultipartUploadUseCase } from '@/use-case/file/AbortMultipartUploadUseCase';
 import { CompleteMultipartUploadUseCase } from '@/use-case/file/CompleteMultipartUploadUseCase';
@@ -9,8 +9,7 @@ import { GetPresignedPartUrlUseCase } from '@/use-case/file/GetPresignedPartUrlU
 import { InitiateMultipartUploadUseCase } from '@/use-case/file/InitiateMultipartUploadUseCase';
 
 @Module({
-  imports: [],
-  controllers: [FileController],
+  controllers: [MultipartController],
   providers: [
     AbortMultipartUploadUseCase,
     CompleteMultipartUploadUseCase,
@@ -19,4 +18,4 @@ import { InitiateMultipartUploadUseCase } from '@/use-case/file/InitiateMultipar
     InitiateMultipartUploadUseCase,
   ],
 })
-export class FileModule {}
+export class MultipartModule {}

@@ -33,8 +33,7 @@ import { S3Service } from './S3Service';
           requestChecksumCalculation: 'WHEN_REQUIRED',
         }),
     },
-    S3Service,
-    { provide: FileStoragePort, useExisting: S3Service },
+    { provide: FileStoragePort, useClass: S3Service },
   ],
   exports: [FileStoragePort],
 })

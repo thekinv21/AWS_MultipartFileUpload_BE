@@ -9,8 +9,7 @@ import { PrismaService } from './PrismaService';
 @Module({
   providers: [
     PrismaService,
-    FileRepository,
-    { provide: FileRepositoryPort, useExisting: FileRepository },
+    { provide: FileRepositoryPort, useClass: FileRepository },
   ],
   exports: [PrismaService, FileRepositoryPort],
 })
