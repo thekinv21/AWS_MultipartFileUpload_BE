@@ -16,13 +16,11 @@ File bytes travel from the browser straight to S3 and never touch the server.
 
 </div>
 
-<img width="1536" height="366" alt="image" src="https://github.com/user-attachments/assets/b1cc5666-eb4a-428a-bece-cc98fb67999d" />
-
+![Swagger](docs/images/swagger.png)
 
 ## Frontend Repository
 
 [Github Repository](https://github.com/thekinv21/AWS_MultipartFileUpload_FE)
-
 
 ## Overview
 
@@ -343,7 +341,6 @@ Base path: `/api/v1/multipart`. All bodies are JSON. Interactive documentation i
 | `POST` | [`/abort`](#post-abort)              | Cancel and discard the parts           | `204`   |
 | `GET`  | [`/download-url`](#get-download-url) | Time-limited download link             | `200`   |
 
-
 <a id="post-initiate"></a>
 
 ### `POST /initiate`
@@ -587,4 +584,3 @@ src/
 | `bun run lint`         | Type-aware linting with oxlint   |
 | `bun run format`       | Format sources with Prettier     |
 | `bun run format:check` | Verify formatting                |
-
