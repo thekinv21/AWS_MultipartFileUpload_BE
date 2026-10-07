@@ -2,9 +2,9 @@ import { DocumentBuilder } from '@nestjs/swagger';
 
 export const createSwaggerConfig = (port: number) =>
   new DocumentBuilder()
-    .setTitle('Aws S3 file Upload API')
+    .setTitle('AWS S3 Bucket File Upload API')
     .setDescription(
-      'A backend S3 file upload service built with **NestJS** and **AWS S3** for upload files',
+      'A backend for multipart file upload service to S3 Bucket built with **NestJS** and **AWS S3** for upload files',
     )
     .setVersion('1.0')
     .setContact('Vadim', 'https://github.com/thekinv21', 'thekinv21@gmail.com')
