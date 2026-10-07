@@ -16,7 +16,8 @@ File bytes travel from the browser straight to S3 and never touch the server.
 
 </div>
 
-<img width="1556" height="776" alt="Screenshot 2026-10-07 at 21 12 19" src="https://github.com/user-attachments/assets/827ea055-7c36-4141-8cb1-97fed3648afe" />
+<img width="1536" height="366" alt="image" src="https://github.com/user-attachments/assets/b1cc5666-eb4a-428a-bece-cc98fb67999d" />
+
 
 ## Overview
 
