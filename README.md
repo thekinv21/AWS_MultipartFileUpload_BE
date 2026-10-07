@@ -19,6 +19,11 @@ File bytes travel from the browser straight to S3 and never touch the server.
 <img width="1536" height="366" alt="image" src="https://github.com/user-attachments/assets/b1cc5666-eb4a-428a-bece-cc98fb67999d" />
 
 
+## Frontend Repository
+
+[Github Repository](https://github.com/thekinv21/AWS_MultipartFileUpload_FE)
+
+
 ## Overview
 
 Uploading large files through an application server is slow and expensive: every byte is received, buffered and forwarded again, and a single dropped connection means starting over. This service removes the server from the data path.
@@ -338,7 +343,6 @@ Base path: `/api/v1/multipart`. All bodies are JSON. Interactive documentation i
 | `POST` | [`/abort`](#post-abort)              | Cancel and discard the parts           | `204`   |
 | `GET`  | [`/download-url`](#get-download-url) | Time-limited download link             | `200`   |
 
-![Swagger UI showing the complete endpoint](docs/images/swagger-complete.png)
 
 <a id="post-initiate"></a>
 
