@@ -10,10 +10,6 @@ const positiveInt = () => z.coerce.number().int().positive();
 
 const nonEmptyString = () => z.string().trim().nonempty();
 
-/**
- * "http://localhost:3000, http://localhost:3001" → ['http://localhost:3000', 'http://localhost:3001']
- */
-
 const urlList = () =>
   z
     .string()
@@ -30,8 +26,6 @@ export const envSchema = z
     NODE_ENV: z.enum(['development', 'production', 'test']),
     PORT: positiveInt().max(65535),
     CORS_ORIGINS: urlList(),
-
-    DATABASE_URL: z.url({ protocol: /^postgres(ql)?$/ }),
 
     AWS_BUCKET_NAME: nonEmptyString(),
     AWS_S3_REGION: nonEmptyString(),

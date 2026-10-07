@@ -2,14 +2,14 @@ import z from 'zod';
 
 import { MAX_PART_NUMBER, MIN_PART_NUMBER } from '@/shared/constants';
 
-import { fileKeySchema } from './FileKeySchema';
+import { multipartKeySchema } from './MultipartKeySchema';
 
 /**
  * Multipart upload'a ait endpoint'lerde ortak kullanılan alanlar.
  */
 
 export const multipartUploadTargetSchema = z.strictObject({
-  key: fileKeySchema,
+  key: multipartKeySchema,
   uploadId: z.string().nonempty(),
 });
 

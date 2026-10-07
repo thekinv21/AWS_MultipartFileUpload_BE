@@ -11,7 +11,6 @@ import {
   AbortMultipartUploadCommand,
   CompleteMultipartUploadCommand,
   CreateMultipartUploadCommand,
-  DeleteObjectCommand,
   GetObjectCommand,
   HeadObjectCommand,
   ListPartsCommand,
@@ -23,12 +22,12 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 import { TEnv } from '@/shared/types';
 
-import { FileStoragePort } from '@/use-case/file/port';
+import { MultipartPort } from '@/use-case/multipart/port';
 import {
   TCompletedPart,
   TMultipartUploadTarget,
   TUploadedPart,
-} from '@/use-case/file/types';
+} from '@/use-case/multipart/types';
 
 /**
  * Client kaynaklı S3 hata kodları ve karşılık gelen HTTP hataları.
@@ -50,7 +49,7 @@ const S3_BAD_REQUEST_ERRORS = new Set([
 ]);
 
 @Injectable()
-export class S3Service implements FileStoragePort {
+export class S3Service implements MultipartPort {
   private readonly logger = new Logger(S3Service.name);
   private readonly bucketName: string;
   private readonly presignedUrlExpiresIn: number;
@@ -70,10 +69,14 @@ export class S3Service implements FileStoragePort {
       `https://${this.bucketName}.s3.${configService.get('AWS_S3_REGION', { infer: true })}.amazonaws.com`;
   }
 
-  async initiateMultipartUpload(
-    key: string,
-    contentType: string,
-  ): Promise<string> {
+  /**
+   * @description Dosya yüklemeyi başlatır
+   * @param key
+   * @param contentType
+   * @returns UploadId
+   */
+
+  async initiateMultipart(key: string, contentType: string): Promise<string> {
     const { UploadId } = await this.run(() =>
       this.s3Client.send(
         new CreateMultipartUploadCommand({
@@ -92,6 +95,13 @@ export class S3Service implements FileStoragePort {
 
     return UploadId;
   }
+
+  /**
+   *
+   * @param param0
+   * @param partNumber
+   * @returns
+   */
 
   getPresignedPartUrl(
     { key, uploadId }: TMultipartUploadTarget,
@@ -112,7 +122,8 @@ export class S3Service implements FileStoragePort {
   }
 
   /**
-   * S3'e yüklenmiş tüm parçaları sayfa sayfa listeler.
+   * @param TMultipartUploadTarget
+   * @returns S3'e yüklenmiş tüm parçaları sayfa sayfa listeler.
    */
 
   async listParts({
@@ -148,7 +159,7 @@ export class S3Service implements FileStoragePort {
     return parts;
   }
 
-  async completeMultipartUpload(
+  async completeMultipart(
     { key, uploadId }: TMultipartUploadTarget,
     parts: TCompletedPart[],
   ): Promise<void> {
@@ -169,7 +180,7 @@ export class S3Service implements FileStoragePort {
     );
   }
 
-  async abortMultipartUpload({
+  async abortMultipart({
     key,
     uploadId,
   }: TMultipartUploadTarget): Promise<void> {
@@ -185,10 +196,20 @@ export class S3Service implements FileStoragePort {
   }
 
   /**
+   * Nesnenin varlığını doğrular, yoksa 404 döner.
    * Content-Disposition, tarayıcının dosyayı orijinal adıyla kaydetmesini sağlar.
    */
 
-  getPresignedDownloadUrl(key: string, fileName: string): Promise<string> {
+  async getPresignedDownloadUrl(
+    key: string,
+    fileName: string,
+  ): Promise<string> {
+    await this.run(() =>
+      this.s3Client.send(
+        new HeadObjectCommand({ Bucket: this.bucketName, Key: key }),
+      ),
+    );
+
     const command = new GetObjectCommand({
       Bucket: this.bucketName,
       Key: key,
@@ -199,28 +220,6 @@ export class S3Service implements FileStoragePort {
       getSignedUrl(this.s3Client, command, {
         expiresIn: this.presignedUrlExpiresIn,
       }),
-    );
-  }
-
-  /**
-   * İçerik türü verilmemiş nesneler için S3 `application/octet-stream` kullanır.
-   */
-
-  async getContentType(key: string): Promise<string> {
-    const { ContentType } = await this.run(() =>
-      this.s3Client.send(
-        new HeadObjectCommand({ Bucket: this.bucketName, Key: key }),
-      ),
-    );
-
-    return ContentType ?? 'application/octet-stream';
-  }
-
-  async deleteObject(key: string): Promise<void> {
-    await this.run(() =>
-      this.s3Client.send(
-        new DeleteObjectCommand({ Bucket: this.bucketName, Key: key }),
-      ),
     );
   }
 

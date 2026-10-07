@@ -6,7 +6,6 @@ import { ZodSerializerInterceptor, ZodValidationPipe } from 'nestjs-zod';
 
 import { validateEnv } from '@/shared/config';
 
-import { PrismaModule } from '@/infrastructure/database/prisma';
 import { S3Module } from '@/infrastructure/storage';
 
 import { MultipartModule } from './MultipartModule';
@@ -17,7 +16,6 @@ import { MultipartModule } from './MultipartModule';
       isGlobal: true,
       validate: validateEnv,
     }),
-    PrismaModule,
     S3Module,
     MultipartModule,
   ],

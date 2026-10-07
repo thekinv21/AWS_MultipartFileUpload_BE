@@ -11,11 +11,13 @@ import { ApiOperation } from '@nestjs/swagger';
 
 import { ZodResponse } from 'nestjs-zod';
 
-import { AbortMultipartUploadUseCase } from '@/use-case/file/AbortMultipartUploadUseCase';
-import { CompleteMultipartUploadUseCase } from '@/use-case/file/CompleteMultipartUploadUseCase';
-import { GetDownloadUrlUseCase } from '@/use-case/file/GetDownloadUrlUseCase';
-import { GetPresignedPartUrlUseCase } from '@/use-case/file/GetPresignedPartUrlUseCase';
-import { InitiateMultipartUploadUseCase } from '@/use-case/file/InitiateMultipartUploadUseCase';
+import {
+  AbortMultipartUseCase,
+  CompleteMultipartUseCase,
+  GetDownloadUrlUseCase,
+  GetPresignedPartUrlUseCase,
+  InitiateMultipartUseCase,
+} from '@/use-case/multipart';
 
 import {
   AbortMultipartUploadRequestDto,
@@ -25,22 +27,23 @@ import {
   InitiateMultipartUploadRequestDto,
 } from '../dto/multipart/request';
 import {
+  CompleteMultipartUploadResponseDto,
   GetDownloadUrlResponseDto,
   GetPresignedPartUrlResponseDto,
   InitiateMultipartUploadResponseDto,
 } from '../dto/multipart/response';
 
-@Controller({ path: '/files', version: '1' })
+@Controller({ path: '/multipart', version: '1' })
 export class MultipartController {
   constructor(
-    private readonly initiateMultipartUploadUseCase: InitiateMultipartUploadUseCase,
+    private readonly initiateMultipartUseCase: InitiateMultipartUseCase,
     private readonly getPresignedPartUrlUseCase: GetPresignedPartUrlUseCase,
-    private readonly completeMultipartUploadUseCase: CompleteMultipartUploadUseCase,
-    private readonly abortMultipartUploadUseCase: AbortMultipartUploadUseCase,
+    private readonly completeMultipartUseCase: CompleteMultipartUseCase,
+    private readonly abortMultipartUseCase: AbortMultipartUseCase,
     private readonly getDownloadUrlUseCase: GetDownloadUrlUseCase,
   ) {}
 
-  @Post('/multipart')
+  @Post('/initiate')
   @ApiOperation({
     summary: 'Initiate a multipart upload',
     description:
@@ -54,10 +57,10 @@ export class MultipartController {
   async initiateMultipartUpload(
     @Body() dto: InitiateMultipartUploadRequestDto,
   ) {
-    return this.initiateMultipartUploadUseCase.execute(dto);
+    return this.initiateMultipartUseCase.execute(dto);
   }
 
-  @Post('/multipart/part-url')
+  @Post('/part-url')
   @ApiOperation({
     summary: 'Generate a presigned URL for a multipart upload part',
     description:
@@ -72,19 +75,24 @@ export class MultipartController {
     return this.getPresignedPartUrlUseCase.execute(dto);
   }
 
-  @Post('/multipart/complete')
+  @Post('/complete')
   @ApiOperation({
     summary: 'Complete a multipart upload',
     description:
       'Completes a multipart upload by combining all uploaded parts into the final file stored in the AWS S3 bucket.',
   })
+  @ZodResponse({
+    status: HttpStatus.CREATED,
+    description: 'Multipart upload completed',
+    type: CompleteMultipartUploadResponseDto,
+  })
   async completeMultipartUpload(
     @Body() dto: CompleteMultipartUploadRequestDto,
   ) {
-    return this.completeMultipartUploadUseCase.execute(dto);
+    return this.completeMultipartUseCase.execute(dto);
   }
 
-  @Post('/multipart/abort')
+  @Post('/abort')
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({
     summary: 'Abort a multipart upload',
@@ -94,7 +102,7 @@ export class MultipartController {
   async abortMultipartUpload(
     @Body() dto: AbortMultipartUploadRequestDto,
   ): Promise<void> {
-    await this.abortMultipartUploadUseCase.execute(dto);
+    await this.abortMultipartUseCase.execute(dto);
   }
 
   @Get('/download-url')

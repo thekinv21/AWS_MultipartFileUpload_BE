@@ -1,10 +1,10 @@
 import { createZodDto } from 'nestjs-zod';
 import z from 'zod';
 
-import { fileKeySchema } from './FileKeySchema';
+import { multipartKeySchema } from './MultipartKeySchema';
 
 const getDownloadUrlRequestSchema = z.strictObject({
-  key: fileKeySchema,
+  key: multipartKeySchema,
 });
 
 export class GetDownloadUrlRequestDto extends createZodDto(

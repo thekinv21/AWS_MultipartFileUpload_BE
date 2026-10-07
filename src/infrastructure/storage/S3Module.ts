@@ -5,7 +5,7 @@ import { S3Client } from '@aws-sdk/client-s3';
 
 import { TEnv } from '@/shared/types';
 
-import { FileStoragePort } from '@/use-case/file/port';
+import { MultipartPort } from '@/use-case/multipart/port';
 
 import { S3Service } from './S3Service';
 
@@ -27,14 +27,16 @@ import { S3Service } from './S3Service';
             }),
           },
           /**
-           * Varsayılan (WHEN_SUPPORTED) presigned part URL'lerine boş gövdenin
-           * CRC32 değerini gömer; client gerçek parçayı yüklediğinde S3 reddeder.
+           * Embeds the CRC32 value of an empty body into
+           * presigned part URLs
+           * by default (WHEN_SUPPORTED); S3 rejects the request when the client
+           * uploads the actual part.
            */
           requestChecksumCalculation: 'WHEN_REQUIRED',
         }),
     },
-    { provide: FileStoragePort, useClass: S3Service },
+    { provide: MultipartPort, useClass: S3Service },
   ],
-  exports: [FileStoragePort],
+  exports: [MultipartPort],
 })
 export class S3Module {}

@@ -2,15 +2,10 @@ import { createZodDto } from 'nestjs-zod';
 import z from 'zod';
 
 import { ALLOWED_FILE_TYPES, MAX_FILE_NAME_LENGTH } from '@/shared/constants';
+import { getFileExtension } from '@/shared/utils';
 
 const hasNoControlCharacters = (value: string): boolean =>
   !/\p{Cc}/u.test(value);
-
-const getFileExtension = (fileName: string): string | undefined => {
-  const dotIndex = fileName.lastIndexOf('.');
-
-  return dotIndex > 0 ? fileName.slice(dotIndex + 1).toLowerCase() : undefined;
-};
 
 const initiateMultipartUploadRequestSchema = z
   .strictObject({

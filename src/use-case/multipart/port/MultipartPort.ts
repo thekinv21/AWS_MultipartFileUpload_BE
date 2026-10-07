@@ -4,11 +4,8 @@ import {
   TUploadedPart,
 } from '../types';
 
-export abstract class FileStoragePort {
-  abstract initiateMultipartUpload(
-    key: string,
-    contentType: string,
-  ): Promise<string>;
+export abstract class MultipartPort {
+  abstract initiateMultipart(key: string, contentType: string): Promise<string>;
 
   abstract getPresignedPartUrl(
     target: TMultipartUploadTarget,
@@ -17,21 +14,17 @@ export abstract class FileStoragePort {
 
   abstract listParts(target: TMultipartUploadTarget): Promise<TUploadedPart[]>;
 
-  abstract completeMultipartUpload(
+  abstract completeMultipart(
     target: TMultipartUploadTarget,
     parts: TCompletedPart[],
   ): Promise<void>;
 
-  abstract abortMultipartUpload(target: TMultipartUploadTarget): Promise<void>;
+  abstract abortMultipart(target: TMultipartUploadTarget): Promise<void>;
 
   abstract getPresignedDownloadUrl(
     key: string,
     fileName: string,
   ): Promise<string>;
-
-  abstract getContentType(key: string): Promise<string>;
-
-  abstract deleteObject(key: string): Promise<void>;
 
   abstract getPublicUrl(key: string): string;
 }

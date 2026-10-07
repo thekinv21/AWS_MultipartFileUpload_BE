@@ -2,11 +2,12 @@ import { createZodDto } from 'nestjs-zod';
 import z from 'zod';
 
 const completeMultipartUploadResponseSchema = z.strictObject({
-  name: z.string(),
-  size: z.number(),
   key: z.string(),
-  url: z.url().nullable(),
+  name: z.string(),
+  extension: z.string(),
+  size: z.number(),
   isPublic: z.boolean(),
+  url: z.url().nullable(),
 });
 
 export class CompleteMultipartUploadResponseDto extends createZodDto(

@@ -2,20 +2,22 @@ import { Module } from '@nestjs/common';
 
 import { MultipartController } from '@/presentation/controller/MultipartController';
 
-import { AbortMultipartUploadUseCase } from '@/use-case/file/AbortMultipartUploadUseCase';
-import { CompleteMultipartUploadUseCase } from '@/use-case/file/CompleteMultipartUploadUseCase';
-import { GetDownloadUrlUseCase } from '@/use-case/file/GetDownloadUrlUseCase';
-import { GetPresignedPartUrlUseCase } from '@/use-case/file/GetPresignedPartUrlUseCase';
-import { InitiateMultipartUploadUseCase } from '@/use-case/file/InitiateMultipartUploadUseCase';
+import {
+  AbortMultipartUseCase,
+  CompleteMultipartUseCase,
+  GetDownloadUrlUseCase,
+  GetPresignedPartUrlUseCase,
+  InitiateMultipartUseCase,
+} from '@/use-case/multipart';
 
 @Module({
   controllers: [MultipartController],
   providers: [
-    AbortMultipartUploadUseCase,
-    CompleteMultipartUploadUseCase,
+    AbortMultipartUseCase,
+    CompleteMultipartUseCase,
     GetDownloadUrlUseCase,
     GetPresignedPartUrlUseCase,
-    InitiateMultipartUploadUseCase,
+    InitiateMultipartUseCase,
   ],
 })
 export class MultipartModule {}

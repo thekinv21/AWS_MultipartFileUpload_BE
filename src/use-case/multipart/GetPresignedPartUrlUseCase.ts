@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-import { FileStoragePort } from './port';
+import { MultipartPort } from './port';
 import {
   TGetPresignedPartUrlRequest,
   TGetPresignedPartUrlResponse,
@@ -8,14 +8,14 @@ import {
 
 @Injectable()
 export class GetPresignedPartUrlUseCase {
-  constructor(private readonly fileStoragePort: FileStoragePort) {}
+  constructor(private readonly multipartPort: MultipartPort) {}
 
   async execute({
     key,
     uploadId,
     partNumber,
   }: TGetPresignedPartUrlRequest): Promise<TGetPresignedPartUrlResponse> {
-    const url = await this.fileStoragePort.getPresignedPartUrl(
+    const url = await this.multipartPort.getPresignedPartUrl(
       { key, uploadId },
       partNumber,
     );

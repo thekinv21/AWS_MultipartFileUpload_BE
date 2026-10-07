@@ -12,3 +12,9 @@ export type TUploadedPart = {
   partNumber: number;
   size: number;
 };
+
+export type TMultipartKeyInfo = {
+  name: string;
+  extension: string;
+  isPublic: boolean;
+};

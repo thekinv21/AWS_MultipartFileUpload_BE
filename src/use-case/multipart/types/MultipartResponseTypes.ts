@@ -10,11 +10,12 @@ export type TGetPresignedPartUrlResponse = {
 };
 
 export type TCompleteMultipartUploadResponse = {
-  name: string;
-  size: number;
   key: string;
-  url: string | null;
+  name: string;
+  extension: string;
+  size: number;
   isPublic: boolean;
+  url: string | null;
 };
 
 export type TGetDownloadUrlResponse = {
