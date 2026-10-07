@@ -10,7 +10,7 @@ export const MIN_PART_NUMBER = env.AWS_FILE_MIN_PART_NUMBER;
 
 export const MAX_PART_NUMBER = env.AWS_FILE_MAX_PART_NUMBER;
 
-export const UPLOAD_KEY_PREFIX = env.AWS_UPLOAD_KEY_PREFIX;
+export const FILE_KEY_PREFIX = env.AWS_UPLOAD_KEY_PREFIX;
 
 export const ALLOWED_FILE_TYPES: Record<string, readonly string[]> = {
   pdf: ['application/pdf'],

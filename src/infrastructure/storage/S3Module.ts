@@ -5,7 +5,7 @@ import { S3Client } from '@aws-sdk/client-s3';
 
 import { TEnv } from '@/shared/types';
 
-import { UploadPort } from '@/use-case/upload/port';
+import { FileStoragePort } from '@/use-case/file/port';
 
 import { S3Service } from './S3Service';
 
@@ -34,8 +34,8 @@ import { S3Service } from './S3Service';
         }),
     },
     S3Service,
-    { provide: UploadPort, useExisting: S3Service },
+    { provide: FileStoragePort, useExisting: S3Service },
   ],
-  exports: [UploadPort],
+  exports: [FileStoragePort],
 })
 export class S3Module {}

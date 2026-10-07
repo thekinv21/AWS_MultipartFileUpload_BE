@@ -2,23 +2,23 @@ import { Injectable, PayloadTooLargeException } from '@nestjs/common';
 
 import { MAX_FILE_SIZE_BYTES } from '@/shared/constants';
 
-import { UploadPort } from './port';
+import { FileStoragePort } from './port';
 import {
   TCompletedPart,
-  TCompleteMultipartRequest,
-  TCompleteMultipartResponse,
+  TCompleteMultipartUploadRequest,
+  TCompleteMultipartUploadResponse,
   TMultipartUploadTarget,
 } from './types';
 
 @Injectable()
-export class CompleteMultipartUseCase {
-  constructor(private readonly uploadPort: UploadPort) {}
+export class CompleteMultipartUploadUseCase {
+  constructor(private readonly fileStoragePort: FileStoragePort) {}
 
   async execute({
     key,
     uploadId,
     parts,
-  }: TCompleteMultipartRequest): Promise<TCompleteMultipartResponse> {
+  }: TCompleteMultipartUploadRequest): Promise<TCompleteMultipartUploadResponse> {
     const target: TMultipartUploadTarget = { key, uploadId };
 
     const completedParts: TCompletedPart[] = parts.map((part) => ({
@@ -34,7 +34,7 @@ export class CompleteMultipartUseCase {
 
     completedParts.sort((a, b) => a.partNumber - b.partNumber);
 
-    await this.uploadPort.completeMultipart(target, completedParts);
+    await this.fileStoragePort.completeMultipartUpload(target, completedParts);
 
     return { key };
   }
@@ -50,7 +50,7 @@ export class CompleteMultipartUseCase {
     parts: TCompletedPart[],
   ): Promise<void> {
     const uploadedSizes = new Map(
-      (await this.uploadPort.listParts(target)).map((part) => [
+      (await this.fileStoragePort.listParts(target)).map((part) => [
         part.partNumber,
         part.size,
       ]),
@@ -62,7 +62,7 @@ export class CompleteMultipartUseCase {
     );
 
     if (totalSize > MAX_FILE_SIZE_BYTES) {
-      await this.uploadPort.abortMultipart(target);
+      await this.fileStoragePort.abortMultipartUpload(target);
 
       throw new PayloadTooLargeException(
         `File size must not exceed ${MAX_FILE_SIZE_BYTES} bytes`,

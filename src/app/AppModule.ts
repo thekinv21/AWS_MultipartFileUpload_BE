@@ -9,7 +9,7 @@ import { validateEnv } from '@/shared/config';
 import { PrismaModule } from '@/infrastructure/database/prisma';
 import { S3Module } from '@/infrastructure/storage';
 
-import { UploadModule } from './UploadModule';
+import { FileModule } from './FileModule';
 
 @Module({
   imports: [
@@ -19,7 +19,7 @@ import { UploadModule } from './UploadModule';
     }),
     PrismaModule,
     S3Module,
-    UploadModule,
+    FileModule,
   ],
   controllers: [],
   providers: [

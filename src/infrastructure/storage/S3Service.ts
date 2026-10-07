@@ -11,6 +11,8 @@ import {
   AbortMultipartUploadCommand,
   CompleteMultipartUploadCommand,
   CreateMultipartUploadCommand,
+  GetObjectCommand,
+  HeadObjectCommand,
   ListPartsCommand,
   S3Client,
   S3ServiceException,
@@ -20,18 +22,26 @@ import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
 
 import { TEnv } from '@/shared/types';
 
-import { UploadPort } from '@/use-case/upload/port';
+import { FileStoragePort } from '@/use-case/file/port';
 import {
   TCompletedPart,
   TMultipartUploadTarget,
   TUploadedPart,
-} from '@/use-case/upload/types';
+} from '@/use-case/file/types';
 
 /**
  * Client kaynaklı S3 hata kodları ve karşılık gelen HTTP hataları.
  */
 
-const S3_NOT_FOUND_ERRORS = new Set(['NoSuchUpload', 'NoSuchKey']);
+/**
+ * HeadObject gövdesiz yanıt döndüğü için hata adı `NoSuchKey` değil `NotFound` olur.
+ */
+
+const S3_NOT_FOUND_ERRORS = new Map([
+  ['NoSuchUpload', 'Multipart upload not found'],
+  ['NoSuchKey', 'File not found'],
+  ['NotFound', 'File not found'],
+]);
 
 const S3_BAD_REQUEST_ERRORS = new Set([
   'InvalidPart',
@@ -42,7 +52,7 @@ const S3_BAD_REQUEST_ERRORS = new Set([
 ]);
 
 @Injectable()
-export class S3Service implements UploadPort {
+export class S3Service implements FileStoragePort {
   private readonly logger = new Logger(S3Service.name);
   private readonly bucketName: string;
   private readonly presignedUrlExpiresIn: number;
@@ -62,7 +72,10 @@ export class S3Service implements UploadPort {
    * Multipart upload işlemini başlatır ve UploadId döndürür.
    */
 
-  async initiateMultipart(key: string, contentType: string): Promise<string> {
+  async initiateMultipartUpload(
+    key: string,
+    contentType: string,
+  ): Promise<string> {
     const response = await this.run(() =>
       this.s3Client.send(
         new CreateMultipartUploadCommand({
@@ -146,7 +159,7 @@ export class S3Service implements UploadPort {
    * Yüklenen tüm parçaları birleştirerek yüklemeyi tamamlar.
    */
 
-  async completeMultipart(
+  async completeMultipartUpload(
     target: TMultipartUploadTarget,
     parts: TCompletedPart[],
   ): Promise<void> {
@@ -171,7 +184,7 @@ export class S3Service implements UploadPort {
    * Başarısız veya iptal edilen yükleme sürecini temizler.
    */
 
-  async abortMultipart(target: TMultipartUploadTarget): Promise<void> {
+  async abortMultipartUpload(target: TMultipartUploadTarget): Promise<void> {
     await this.run(() =>
       this.s3Client.send(
         new AbortMultipartUploadCommand({
@@ -184,6 +197,34 @@ export class S3Service implements UploadPort {
   }
 
   /**
+   * Dosyanın varlığını doğrular ve indirme için presigned URL üretir.
+   * Content-Disposition, tarayıcının dosyayı orijinal adıyla kaydetmesini sağlar.
+   */
+
+  async getPresignedDownloadUrl(
+    key: string,
+    fileName: string,
+  ): Promise<string> {
+    await this.run(() =>
+      this.s3Client.send(
+        new HeadObjectCommand({ Bucket: this.bucketName, Key: key }),
+      ),
+    );
+
+    const command = new GetObjectCommand({
+      Bucket: this.bucketName,
+      Key: key,
+      ResponseContentDisposition: `attachment; filename*=UTF-8''${encodeURIComponent(fileName)}`,
+    });
+
+    return this.run(() =>
+      getSignedUrl(this.s3Client, command, {
+        expiresIn: this.presignedUrlExpiresIn,
+      }),
+    );
+  }
+
+  /**
    * S3 çağrısını çalıştırır, client kaynaklı S3 hatalarını uygun HTTP hatasına çevirir.
    */
 
@@ -192,8 +233,10 @@ export class S3Service implements UploadPort {
       return await operation();
     } catch (error) {
       if (error instanceof S3ServiceException) {
-        if (S3_NOT_FOUND_ERRORS.has(error.name)) {
-          throw new NotFoundException('Multipart upload not found');
+        const notFoundMessage = S3_NOT_FOUND_ERRORS.get(error.name);
+
+        if (notFoundMessage) {
+          throw new NotFoundException(notFoundMessage);
         }
 
         if (S3_BAD_REQUEST_ERRORS.has(error.name)) {

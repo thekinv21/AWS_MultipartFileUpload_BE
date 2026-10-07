@@ -1,6 +1,6 @@
 import { TMultipartUploadTarget } from './MultipartUploadTypes';
 
-export type TInitiateMultipartRequest = {
+export type TInitiateMultipartUploadRequest = {
   fileName: string;
   contentType: string;
 };
@@ -11,8 +11,12 @@ export type TGetPresignedPartUrlRequest = TMultipartUploadTarget & {
 
 type TPart = { PartNumber: number; ETag: string };
 
-export type TCompleteMultipartRequest = TMultipartUploadTarget & {
+export type TCompleteMultipartUploadRequest = TMultipartUploadTarget & {
   parts: TPart[];
 };
 
-export type TAbortMultipartRequest = TMultipartUploadTarget;
+export type TAbortMultipartUploadRequest = TMultipartUploadTarget;
+
+export type TGetDownloadUrlRequest = {
+  key: string;
+};

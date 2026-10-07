@@ -9,8 +9,11 @@ import {
  * Infrastructure katmanı (S3Service) bu sınıfı uygular ve DI token olarak bağlar.
  */
 
-export abstract class UploadPort {
-  abstract initiateMultipart(key: string, contentType: string): Promise<string>;
+export abstract class FileStoragePort {
+  abstract initiateMultipartUpload(
+    key: string,
+    contentType: string,
+  ): Promise<string>;
 
   abstract getPresignedPartUrl(
     target: TMultipartUploadTarget,
@@ -19,10 +22,15 @@ export abstract class UploadPort {
 
   abstract listParts(target: TMultipartUploadTarget): Promise<TUploadedPart[]>;
 
-  abstract completeMultipart(
+  abstract completeMultipartUpload(
     target: TMultipartUploadTarget,
     parts: TCompletedPart[],
   ): Promise<void>;
 
-  abstract abortMultipart(target: TMultipartUploadTarget): Promise<void>;
+  abstract abortMultipartUpload(target: TMultipartUploadTarget): Promise<void>;
+
+  abstract getPresignedDownloadUrl(
+    key: string,
+    fileName: string,
+  ): Promise<string>;
 }

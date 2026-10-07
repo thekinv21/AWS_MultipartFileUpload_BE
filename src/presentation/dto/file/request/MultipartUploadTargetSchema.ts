@@ -1,22 +1,15 @@
 import z from 'zod';
 
-import {
-  MAX_PART_NUMBER,
-  MIN_PART_NUMBER,
-  UPLOAD_KEY_PREFIX,
-} from '@/shared/constants';
+import { MAX_PART_NUMBER, MIN_PART_NUMBER } from '@/shared/constants';
+
+import { fileKeySchema } from './FileKeySchema';
 
 /**
  * Multipart upload'a ait endpoint'lerde ortak kullanılan alanlar.
  */
 
 export const multipartUploadTargetSchema = z.strictObject({
-  key: z
-    .string()
-    .startsWith(UPLOAD_KEY_PREFIX)
-    .refine((key) => !key.slice(UPLOAD_KEY_PREFIX.length).includes('/'), {
-      message: `key must be directly under ${UPLOAD_KEY_PREFIX}`,
-    }),
+  key: fileKeySchema,
   uploadId: z.string().nonempty(),
 });
 
